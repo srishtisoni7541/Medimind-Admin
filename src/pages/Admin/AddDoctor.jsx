@@ -24,7 +24,7 @@ const AddDoctor = () => {
   const [isSearching, setIsSearching] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
 
-  const { backendUrl, adminToken } = useContext(AdminContext)
+  const { backendUrl, atoken } = useContext(AdminContext)
 
   // Handle search input change
   const handleSearchChange = (e) => {
@@ -45,7 +45,7 @@ const AddDoctor = () => {
     setIsSearching(true)
     try {
       const { data } = await axios.get(`${backendUrl}/api/admin/find-hospitals?name=${query}`, {
-        headers: { atoken: adminToken }
+        headers: { token: atoken }
       })
       console.log(data);
       
@@ -96,7 +96,7 @@ const AddDoctor = () => {
       formData.append('hospitalId', selectedHospital._id) // Add hospital ID to the form data
 
       const { data } = await axios.post(backendUrl + '/api/admin/add-doctor', formData, {
-        headers: { 'Content-Type': 'multipart/form-data', atoken: adminToken },
+        headers: { 'Content-Type': 'multipart/form-data', token: atoken },
       })
 
       if (data.success) {

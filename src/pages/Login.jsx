@@ -9,7 +9,7 @@ const Login = () => {
   const [state, setState] = useState('Admin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const { setAdminToken, backendUrl } = useContext(AdminContext)
+  const { setatoken, backendUrl } = useContext(AdminContext)
   const { setDToken } = useContext(DoctorContext)
 
   const onSubmitHandler = async (event) => {
@@ -19,7 +19,7 @@ const Login = () => {
         const { data } = await axios.post(backendUrl + '/api/admin/login', { email, password })
         if (data.success) {
           localStorage.setItem('atoken', data.token)
-          setAdminToken(data.token)
+          setatoken(data.token)
           toast.success('Admin Login successful')
         } else {
           toast.error(data.message)

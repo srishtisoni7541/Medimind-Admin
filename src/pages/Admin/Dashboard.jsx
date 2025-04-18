@@ -5,14 +5,14 @@ import { AppContext } from '../../context/AppContext'
 
 const Dashboard = () => {
 
-  const { adminToken, getDashData, cancelAppointment, dashData } = useContext(AdminContext)
+  const { atoken, getDashData, cancelAppointment, dashData } = useContext(AdminContext)
   const { slotDateFormat } = useContext(AppContext)
 
   useEffect(() => {
-    if (adminToken) {
+    if (atoken) {
       getDashData()
     }
-  }, [adminToken])
+  }, [atoken])
 
   return dashData && (
     <div className='m-5'>

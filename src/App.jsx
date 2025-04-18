@@ -17,10 +17,10 @@ import DoctorProfile from './pages/Doctor/DoctorProfile'
 import AddHospital from './pages/Admin/AddHospital.jsx'
 const App = () => {
 
-  const { adminToken } = useContext(AdminContext)
+  const { atoken } = useContext(AdminContext)
   const { dToken } = useContext(DoctorContext)
 
-  return adminToken || dToken ? (
+  return atoken || dToken ? (
     <div className='bg-[#f8f9fd]'>
       <ToastContainer />
       <Navbar />

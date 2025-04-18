@@ -24,7 +24,7 @@ const AddHospital = () => {
   const [hospitalType, setHospitalType] = useState('general')
   const [specialty, setSpecialty] = useState('')
 
-  const { backendUrl, adminToken } = useContext(AdminContext)
+  const { backendUrl, atoken } = useContext(AdminContext)
 
   const handleAddSpecialty = () => {
     if (specialty.trim() === '') return
@@ -71,7 +71,7 @@ const AddHospital = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            atoken: adminToken
+            atoken: atoken
           }
         }
       )
