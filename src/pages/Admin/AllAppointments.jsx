@@ -33,13 +33,13 @@ const AllAppointments = () => {
         {appointments.map((item, index) => (
           <div className='flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_3fr_1fr_3fr_3fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50' key={index}>
             <p className='max-sm:hidden'>{index + 1}</p>
-            <div className='flex items-center gap-2'>
-              <img className='w-8 rounded-full' src={item.userData.image} alt="" /> <p>{item.userData.name}</p>
+            <div className='flex items-center gap-2 overflow-hidden'>
+              <img className='w-8 rounded-full h-8 object-cover object-center' src={item.userData.image} alt="" /> <p>{item.userData.name}</p>
             </div>
             <p className='max-sm:hidden'>{calculateAge(item.userData.dob)}</p>
             <p>{slotDateFormat(item.slotDate)}, {item.slotTime}</p>
-            <div className='flex items-center gap-2'>
-              <img className='w-8 rounded-full bg-gray-200' src={item.docData.image} alt="" /> <p>{item.docData.name}</p>
+            <div className='flex items-center gap-2 overflow-hidden'>
+              <img className='w-8 rounded-full h-8 object-cover object-center bg-gray-200' src={item.docData.image} alt="" /> <p>{item.docData.name}</p>
             </div>
             <p>{currency}{item.amount}</p>
             {

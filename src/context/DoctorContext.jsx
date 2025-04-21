@@ -5,13 +5,13 @@ import { toast } from "react-toastify"
 export const DoctorContext = createContext()
 
 const DoctorContextProvider = (props) => {
-
       const backendUrl = import.meta.env.VITE_BACKEND_URL
 
       const [dToken, setDToken] = useState(localStorage.getItem('dToken') || '')
       const [appointments, setAppointments] = useState([])
       const [dashData, setDashData] = useState(false)
       const [profileData, setProfileData] = useState(false)
+      const [prescriptions, setPrescriptions] = useState([])
 
       const getAppointments = async () => {
             try {
@@ -86,6 +86,99 @@ const DoctorContextProvider = (props) => {
             }
       }
 
+      // New prescription-related functions
+      const getDoctorPrescriptions = async () => {
+            try {
+                  if (!profileData) {
+                        await getProfileData();
+                  }
+                  
+                  const doctorId = profileData._id;
+                  const { data } = await axios.get(
+                        `${backendUrl}/api/doctor/prescriptions/doctor/${doctorId}`,
+                        { headers: { token: dToken } }
+                  )
+                  
+                  if (data.success) {
+                        setPrescriptions(data.data)
+                        return data.data
+                  } else {
+                        toast.error(data.message)
+                        return []
+                  }
+            } catch (error) {
+                  console.log(error)
+                  toast.error(error.message)
+                  return []
+            }
+      }
+
+      const createPrescription = async (prescriptionData) => {
+            try {
+                  const { data } = await axios.post(
+                        `${backendUrl}/api/doctor/prescriptions`,
+                        prescriptionData,
+                        { headers: { token: dToken } }
+                  )
+                  
+                  if (data.success) {
+                        toast.success("Prescription created successfully")
+                        return data.data
+                  } else {
+                        toast.error(data.message)
+                        return null
+                  }
+            } catch (error) {
+                  console.log(error)
+                  toast.error(error.response?.data?.message || error.message)
+                  return null
+            }
+      }
+
+      const updatePrescription = async (prescriptionId, prescriptionData) => {
+            try {
+                  const { data } = await axios.put(
+                        `${backendUrl}/api/doctor/prescriptions/${prescriptionId}`,
+                        prescriptionData,
+                        { headers: { token: dToken } }
+                  )
+                  
+                  if (data.success) {
+                        toast.success("Prescription updated successfully")
+                        return data.data
+                  } else {
+                        toast.error(data.message)
+                        return null
+                  }
+            } catch (error) {
+                  console.log(error)
+                  toast.error(error.response?.data?.message || error.message)
+                  return null
+            }
+      }
+
+      const getPrescriptionByAppointment = async (appointmentId) => {
+            try {
+                  const { data } = await axios.get(
+                        `${backendUrl}/api/doctor/prescriptions/appointment/${appointmentId}`,
+                        { headers: { token: dToken } }
+                  )
+                  
+                  if (data.success) {
+                        return data.data
+                  } else {
+                        toast.error(data.message)
+                        return null
+                  }
+            } catch (error) {
+                  if (error.response?.status !== 404) {
+                        console.log(error)
+                        toast.error(error.message)
+                  }
+                  return null
+            }
+      }
+
       const value = {
             dToken,
             setDToken,
@@ -100,7 +193,14 @@ const DoctorContextProvider = (props) => {
             getDashData,
             profileData,
             setProfileData,
-            getProfileData
+            getProfileData,
+            // New prescription-related props
+            prescriptions,
+            setPrescriptions,
+            getDoctorPrescriptions,
+            createPrescription,
+            updatePrescription,
+            getPrescriptionByAppointment
       }
 
       return (
