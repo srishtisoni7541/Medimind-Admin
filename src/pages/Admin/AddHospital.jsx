@@ -80,7 +80,7 @@ const AddHospital = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            atoken: atoken
+             token: atoken
           }
         }
       )
