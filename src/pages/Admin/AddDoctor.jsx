@@ -3,6 +3,7 @@ import { assets } from '../../assets/assets'
 import { AdminContext } from '../../context/AdminContext'
 import { toast } from 'react-toastify'
 import axios from 'axios'
+import { Upload, User, Mail, Lock, Award, DollarSign, Building, Stethoscope, BookOpen, MapPin, FileText, Search, X, Check, Plus } from 'lucide-react'
 
 const AddDoctor = () => {
   const [docImg, setDocImg] = useState(false)
@@ -50,8 +51,6 @@ const AddDoctor = () => {
       const { data } = await axios.get(`${backendUrl}/api/admin/find-hospitals?name=${query}`, {
         headers: { token: atoken }
       })
-      console.log(data);
-      
       
       if (data.success) {
         setSearchResults(data.hospitals)
@@ -134,158 +133,326 @@ const AddDoctor = () => {
   }
 
   return (
-    <form onSubmit={onSubmitHandler} className='m-5 w-full'>
-      <p className='mb-3 text-lg font-medium'>Add Doctor</p>
-      <div className='bg-white px-8 py-8 border rounded w-full max-w-4xl max-h-[80vh] overflow-y-scroll'>
-        <div className='flex items-center gap-4 mb-8 text-gray-500'>
-          <label htmlFor="doc.img">
-            <img className='w-16 bg-gray-200 rounded-full cursor-pointer' src={docImg ? URL.createObjectURL(docImg) : assets.upload_area} alt="" />
-          </label>
-          <input onChange={(e) => setDocImg(e.target.files[0])} type="file" id='doc.img' hidden />
-          <p>Upload doctor <br /> picture</p>
+    <div className="p-6 bg-gray-50">
+      <div className="max-w-5xl mx-auto">
+        <div className="flex items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">Add New Doctor</h1>
         </div>
-
-        {/* Hospital Search Bar */}
-        <div className='w-full mb-6 relative'>
-          <p className='mb-2 text-gray-600'>Select Hospital</p>
-          <input 
-            type="text" 
-            placeholder="Search hospital by name..." 
-            value={searchTerm}
-            onChange={handleSearchChange}
-            onFocus={() => searchTerm.length > 2 && setShowDropdown(true)}
-            className='w-full border rounded px-3 py-2 text-gray-600'
-          />
-          
-          {/* Selected Hospital Display */}
-          {selectedHospital && (
-            <div className='mt-2 p-2 bg-blue-50 border border-blue-200 rounded flex justify-between items-center'>
-              <div>
-                <p className='font-medium'>{selectedHospital.name}</p>
-                <p className='text-sm text-gray-500'>{selectedHospital.address}</p>
+        
+        <form onSubmit={onSubmitHandler} className="bg-white rounded-lg shadow-md overflow-hidden">
+          {/* Header section with image upload */}
+          <div className="bg-gradient-to-r from-primary/20 to-primary/5 p-6 border-b">
+            <div className="flex items-center gap-6">
+              <div className="relative group">
+                <div className={`w-24 h-24 rounded-full overflow-hidden flex items-center justify-center bg-gray-100 border-2 ${docImg ? 'border-primary' : 'border-gray-200'}`}>
+                  {docImg ? (
+                    <img 
+                      className="w-full h-full object-cover" 
+                      src={URL.createObjectURL(docImg)} 
+                      alt="Doctor preview" 
+                    />
+                  ) : (
+                    <Upload className="h-8 w-8 text-gray-400" />
+                  )}
+                </div>
+                <label htmlFor="doc-img" className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer shadow-md">
+                  <Plus className="h-4 w-4" />
+                </label>
+                <input 
+                  id="doc-img" 
+                  type="file" 
+                  onChange={(e) => setDocImg(e.target.files[0])} 
+                  className="hidden" 
+                  accept="image/*"
+                />
               </div>
+              <div>
+                <h2 className="text-lg font-medium text-gray-800">Doctor Profile Picture</h2>
+                <p className="text-sm text-gray-500">Upload a professional photo of the doctor</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6">
+            {/* Hospital Selection Section */}
+            <div className="mb-8">
+              <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                <Building className="mr-2 h-5 w-5 text-primary" />
+                Hospital Assignment
+              </h3>
+              <div className="relative">
+                <div className="flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-primary">
+                  <div className="pl-3 text-gray-400">
+                    <Search className="h-5 w-5" />
+                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Search hospital by name..." 
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    onFocus={() => searchTerm.length > 2 && setShowDropdown(true)}
+                    className="w-full px-3 py-3 focus:outline-none"
+                  />
+                </div>
+                
+                {/* Dropdown for search results */}
+                {showDropdown && (
+                  <div className="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border max-h-60 overflow-y-auto">
+                    {isSearching ? (
+                      <div className="p-4 text-center text-gray-500 flex justify-center">
+                        <svg className="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      </div>
+                    ) : searchResults.length > 0 ? (
+                      searchResults.map(hospital => (
+                        <div 
+                          key={hospital._id} 
+                          className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                          onClick={() => selectHospital(hospital)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-medium text-gray-800">{hospital.name}</p>
+                              <p className="text-sm text-gray-500">{hospital.address}</p>
+                            </div>
+                            <div className="text-primary">
+                              <Check className="h-5 w-5" />
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-gray-500">No hospitals found</div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Selected Hospital Display */}
+                {selectedHospital && (
+                  <div className="mt-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-start gap-3">
+                        <Building className="h-5 w-5 text-primary mt-1" />
+                        <div>
+                          <p className="font-medium text-gray-800">{selectedHospital.name}</p>
+                          <p className="text-sm text-gray-600">{selectedHospital.address}</p>
+                        </div>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setSelectedHospital(null)
+                          setSearchTerm('')
+                        }}
+                        className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Form sections in cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Personal Information */}
+              <div className="bg-gray-50 p-6 rounded-lg border">
+                <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                  <User className="mr-2 h-5 w-5 text-primary" />
+                  Personal Information
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input 
+                      type="text" 
+                      placeholder="Dr. John Doe" 
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 py-2 px-3"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input 
+                      type="email" 
+                      placeholder="doctor@example.com" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 py-2 px-3"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input 
+                      type="password" 
+                      placeholder="••••••••" 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 py-2 px-3"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Professional Information */}
+              <div className="bg-gray-50 p-6 rounded-lg border">
+                <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                  <Stethoscope className="mr-2 h-5 w-5 text-primary" />
+                  Professional Details
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Speciality</label>
+                    <select 
+                      value={speciality}
+                      onChange={(e) => setSpeciality(e.target.value)}
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 py-2 px-3"
+                    >
+                      <option value="General physician">General Physician</option>
+                      <option value="Gynaecologist">Gynaecologist</option>
+                      <option value="Dermatologist">Dermatologist</option>
+                      <option value="Pediatricians">Pediatrician</option>
+                      <option value="Neurologist">Neurologist</option>
+                      <option value="Gastroenterologist">Gastroenterologist</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Years of Experience</label>
+                    <select 
+                      value={experience}
+                      onChange={(e) => setExperience(e.target.value)}
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 py-2 px-3"
+                    >
+                      {[...Array(10)].map((_, i) => (
+                        <option key={i} value={`${i+1} Year`}>{i+1} Year{i !== 0 ? 's' : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Education/Degree</label>
+                    <input 
+                      type="text" 
+                      placeholder="MD, MBBS, etc." 
+                      value={degree}
+                      onChange={(e) => setDegree(e.target.value)}
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 py-2 px-3"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Practice Details */}
+              <div className="bg-gray-50 p-6 rounded-lg border">
+                <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                  <MapPin className="mr-2 h-5 w-5 text-primary" />
+                  Practice Details
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Consultation Fee</label>
+                    <div className="relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <DollarSign className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input 
+                        type="number" 
+                        placeholder="100" 
+                        value={fees}
+                        onChange={(e) => setFees(e.target.value)}
+                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 py-2 pl-10 pr-3"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 1</label>
+                    <input 
+                      type="text" 
+                      placeholder="Office/Clinic address" 
+                      value={address1}
+                      onChange={(e) => setAddress1(e.target.value)}
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 py-2 px-3"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 2</label>
+                    <input 
+                      type="text" 
+                      placeholder="City, State, Zip" 
+                      value={address2}
+                      onChange={(e) => setAddress2(e.target.value)}
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 py-2 px-3"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* About Doctor */}
+              <div className="bg-gray-50 p-6 rounded-lg border">
+                <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                  <FileText className="mr-2 h-5 w-5 text-primary" />
+                  Doctor Biography
+                </h3>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
+                  <textarea 
+                    placeholder="Write a detailed professional description about the doctor..." 
+                    value={about}
+                    onChange={(e) => setAbout(e.target.value)}
+                    rows={6}
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 py-2 px-3"
+                    required
+                  />
+                  <p className="mt-2 text-sm text-gray-500">
+                    Include relevant experience, areas of expertise, and approach to patient care.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Submit Button */}
+            <div className="mt-8 flex justify-end">
               <button 
-                type="button" 
-                onClick={() => {
-                  setSelectedHospital(null)
-                  setSearchTerm('')
-                }}
-                className='text-red-500'
+                type="submit" 
+                disabled={isSubmitting}
+                className={`flex items-center px-8 py-3 rounded-lg text-white bg-primary hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                Remove
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Adding Doctor...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="mr-2 h-5 w-5" />
+                    Add Doctor
+                  </>
+                )}
               </button>
             </div>
-          )}
-          
-          {/* Dropdown for search results */}
-          {showDropdown && (
-            <div className='absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto'>
-              {isSearching ? (
-                <div className='p-3 text-center text-gray-500'>Searching...</div>
-              ) : searchResults.length > 0 ? (
-                searchResults.map(hospital => (
-                  <div 
-                    key={hospital._id} 
-                    className='px-3 py-2 hover:bg-gray-100 cursor-pointer'
-                    onClick={() => selectHospital(hospital)}
-                  >
-                    <p className='font-medium'>{hospital.name}</p>
-                    <p className='text-sm text-gray-500'>{hospital.address}</p>
-                  </div>
-                ))
-              ) : (
-                <div className='p-3 text-center text-gray-500'>No hospitals found</div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className='flex flex-col lg:flex-row items-start gap-10 text-gray-600'>
-          <div className='w-full lg:flex-1 flex flex-col gap-4'>
-            <div className='flex-1 flex flex-col gap-1'>
-              <p>Doctor name</p>
-              <input onChange={(e) => setName(e.target.value)} value={name} className='border rounded px-3 py-2' type="text" placeholder='Name' required />
-            </div>
-
-            <div className='flex-1 flex flex-col gap-1'>
-              <p>Doctor Email</p>
-              <input onChange={(e) => setEmail(e.target.value)} value={email} className='border rounded px-3 py-2' type="email" placeholder='Email' required />
-            </div>
-
-            <div className='flex-1 flex flex-col gap-1'>
-              <p>Doctor Password</p>
-              <input onChange={(e) => setPassword(e.target.value)} value={password} className='border rounded px-3 py-2' type="password" placeholder='Password' required />
-            </div>
-            <div className='flex-1 flex flex-col gap-1'>
-              <p>Experience</p>
-              <select onChange={(e) => setExperience(e.target.value)} value={experience} className='border rounded px-3 py-2' name="" id="">
-                <option value="1 Year">1 Year</option>
-                <option value="2 Year">2 Year</option>
-                <option value="3 Year">3 Year</option>
-                <option value="4 Year">4 Year</option>
-                <option value="5 Year">5 Year</option>
-                <option value="6 Year">6 Year</option>
-                <option value="7 Year">7 Year</option>
-                <option value="8 Year">8 Year</option>
-                <option value="9 Year">9 Year</option>
-                <option value="10 Year">10 Year</option>
-              </select>
-            </div>
-
-            <div className='flex-1 flex flex-col gap-1'>
-              <p>Fees</p>
-              <input onChange={(e) => setFees(e.target.value)} value={fees} className='border rounded px-3 py-2' type="number" placeholder='fees' required />
-            </div>
           </div>
-
-          <div className='w-full lg:flex-1 flex flex-col gap-4'>
-            <div className='flex-1 flex flex-col gap-1'>
-              <p>Speciality</p>
-              <select onChange={(e) => setSpeciality(e.target.value)} value={speciality} className='border rounded px-3 py-2' name="" id="">
-                <option value="General physician">General physician</option>
-                <option value="Gynaecologist">Gynaecologist</option>
-                <option value="Dermatologist">Dermatologist</option>
-                <option value="Pediatricians">Pediatricians</option>
-                <option value="Neurologist">Neurologist</option>
-                <option value="Gastroenterologist">Gastroenterologist</option>
-              </select>
-            </div>
-
-            <div className='flex-1 flex flex-col gap-1'>
-              <p>Education</p>
-              <input onChange={(e) => setDegree(e.target.value)} value={degree} className='border rounded px-3 py-2' type="text" placeholder='Education' required />
-            </div>
-
-            <div className='flex-1 flex flex-col gap-1'>
-              <p>Address</p>
-              <input onChange={(e) => setAddress1(e.target.value)} value={address1} className='border rounded px-3 py-2' type="text" placeholder='address 1' required />
-              <input onChange={(e) => setAddress2(e.target.value)} value={address2} className='border rounded px-3 py-2' type="text" placeholder='address 2' required />
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <p className='mt-4 mb-2'>About Doctor</p>
-          <textarea onChange={(e) => setAbout(e.target.value)} value={about} className='w-full px-4 pt-2 border rounded' type='text' placeholder='write about doctor' rows={5} required />
-        </div>
-
-        <button 
-          type='submit' 
-          disabled={isSubmitting}
-          className={`bg-primary px-10 py-3 mt-4 text-white rounded-full flex items-center justify-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
-        >
-          {isSubmitting ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Processing...
-            </>
-          ) : 'Add doctor'}
-        </button>
+        </form>
       </div>
-    </form>
+    </div>
   )
 }
 
